@@ -1,5 +1,4 @@
-from flask import Flask, render_template, url_for, redirect, request, session
-
+from flask import Flask, render_template, url_for, redirect, request, session, json, jsonify
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 
@@ -49,6 +48,29 @@ def flights(flight_id):
     passengers = db.execute("SELECT * FROM passengers WHERE flight = :flight_id",
                             {"flight_id": flight_id})
     return(render_template("flights.html", flight=flight, passengers=passengers))
+
+
+@app.route("/api/flights/<int:flight_id>")
+def api(flight_id):
+	# get all flights & check flight exist
+	flight = db.execute("SELECT * FROM flights WHERE id = :flight_id",
+                        {"flight_id": flight_id}).fetchall()
+
+	if flight is None: return(jsonify({"error": "Invalid flight id, No such flight exist"}))
+
+    passengers = db.execute("SELECT * FROM passengers WHERE flight = :flight_id",
+	 						{"flight_id": flight_id})
+
+	names = []
+	for passenger in passengers:
+		names.append(passenger.name)
+
+    return({
+			"origin": flight.origin,
+			"destination": flight.destination,
+			"duration": flight.duration,
+			"passengers": names
+		})
 
 
 if __name__ == "__main__":
