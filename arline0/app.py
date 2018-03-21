@@ -59,7 +59,7 @@ def api(flight_id):
 	if flight is None: return(jsonify({"error": "Invalid flight id, No such flight exist"}))
 
     passengers = db.execute("SELECT * FROM passengers WHERE flight = :flight_id",
-	 						{"flight_id": flight_id})
+                            {"flight_id": flight_id})
 
 	names = []
 	for passenger in passengers:
